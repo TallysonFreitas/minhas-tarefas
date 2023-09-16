@@ -1,30 +1,73 @@
+import { TarefaType, remover, salvar } from '../../store/reducers/tarefas'
 import {
   BarraAcoes,
-  Botao,
+  BotaoCancelarRemover,
+  BotaoEditar,
+  BotaoSalvar,
   Card,
+  ContainerTitulo,
   Descricao,
   Informacoes,
   Tag,
   Titulo
 } from './style'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux/es/hooks/useDispatch'
 
-const Tarefa = () => {
+const Tarefa = (tarefa: TarefaType) => {
+  const [editando, setEditando] = useState(false)
+  const [finalizado, setFinalizado] = useState(false)
+
+  const dispatch = useDispatch()
+
+  const handleClickChangeEdit = () => {
+    setEditando(!editando)
+  }
+
+  const handleClickRemove = () => {
+    dispatch(remover(tarefa))
+  }
+
+  const handleClickSalvar = () => {
+    dispatch(salvar(tarefa)), setEditando(!editando)
+  }
+
+  const handleClickCheckedTask = () => {
+    setFinalizado(!finalizado)
+  }
+
   return (
-    <Card>
+    <Card key={tarefa.id}>
       <Informacoes>
-        <Titulo>Estudar Programacao</Titulo>
+        <ContainerTitulo>
+          <input type="checkbox" onClick={handleClickCheckedTask} />
+          <Titulo final={finalizado}>
+            {editando && <em>Editando: </em>}
+            {tarefa.titulo}
+          </Titulo>
+        </ContainerTitulo>
         <div>
-          <Tag>importante</Tag>
-          <Tag>pendente</Tag>
+          <Tag status={tarefa.status}>{tarefa.status}</Tag>
+          <Tag prioridade={tarefa.prioridade}>{tarefa.prioridade}</Tag>
         </div>
-        <Descricao>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquam quod
-          nobis doloribus porro dolores velit incidunt aut a quo ducimus?
-        </Descricao>
+        <Descricao disabled={!editando} defaultValue={tarefa.descricao} />
       </Informacoes>
       <BarraAcoes>
-        <Botao>Editar</Botao>
-        <Botao>Remover</Botao>
+        {editando == true ? (
+          <>
+            <BotaoSalvar onClick={handleClickSalvar}>Salvar</BotaoSalvar>
+            <BotaoCancelarRemover onClick={handleClickChangeEdit}>
+              Cancelar
+            </BotaoCancelarRemover>
+          </>
+        ) : (
+          <>
+            <BotaoEditar onClick={handleClickChangeEdit}>Editar</BotaoEditar>
+            <BotaoCancelarRemover onClick={handleClickRemove}>
+              Remover
+            </BotaoCancelarRemover>
+          </>
+        )}
       </BarraAcoes>
     </Card>
   )
